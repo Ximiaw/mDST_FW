@@ -1,0 +1,10 @@
+name = "test"
+description = "test"
+author = "雨中的矛"
+version = "0.1"
+forumthread = ""
+dst_compatible = true
+client_only_mod = false
+all_clients_require_mod = false
+api_version = 10
+configuration_options = {}
