@@ -1,8 +1,8 @@
-AddPrefabPostInit("tentaclespike", function(inst)
-    if not GLOBAL.TheWorld.ismastersim then
-        return
-    end
-    if inst.components.finiteuses then
-        inst:RemoveComponent("finiteuses")
-    end
-end)
+local character = require("character")
+character:init(_G)
+
+local test = character:new()
+    :set_info("test","MALE",nil)
+    :add_tag("test")
+
+character:load_game()

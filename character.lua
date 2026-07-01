@@ -5,7 +5,7 @@ local character = {
             name="mymodchar",                           -- 人物 prefab 名（小写）
             gender="FEMALE",                            -- 性别：FEMALE / MALE / ROBOT / NEUTRAL / PLURAL
             modes={ghost_skin = "ghost_mymodchar_build"}, -- 可选模式，如幽灵皮肤
-            tag={mymodbuilder = "mymodbuilder"},        -- 人物专属 builder_tag，用于限定配方
+            tags={mymodbuilder = "mymodbuilder"},        -- 人物专属 builder_tag，用于限定配方
             stats={health=130, hunger=150, sanity=200}, -- 三维
             combat={damage=25, damage_mult=1.0},        -- 战斗属性
             locomotor={runspeed=6, walkspeed=4},        -- 移速
@@ -91,6 +91,13 @@ local character = {
     data={}
 }
 
+function character:init(env)
+    if _ENV.LOAF_KLEI_MOD_API == nil then
+        _ENV=env
+        _ENV.LOAF_KLEI_MOD_API=true
+    end
+end
+
 -- 封装配置选项，使得更好配置，但要保留一次性配置的接口
 function character:new(...)
     local o = {...}
@@ -102,6 +109,12 @@ end
 function character:load_game()
     for key, value in pairs(character.data) do
         -- todo:加载和初始化，在modmain调用
+        AddModCharacter(value.name,value.gender,value.modes)
+        AddPrefabPostInit(value.name, function(inst)
+            for key, value in pairs(value.tags) do
+                inst:AddTag(value)
+            end
+        end)
     end
 end
 
@@ -109,14 +122,17 @@ function character:set_info(name,gender,modes)
     self.name = name
     self.gender = gender
     self.modes = modes
+    return self
 end
 
 function character:add_tag(tag)
-    self.tag[tag] = tag
+    self.tags[tag] = tag
+    return self
 end
 
 function character:rm_tag(tag)
-    self.tag[tag] = nil
+    self.tags[tag] = nil
+    return self
 end
 
 return character
