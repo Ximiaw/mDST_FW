@@ -86,35 +86,32 @@ local character = {
 }
 ]]
 
-
+local env={}
 local character = {
     data={}
 }
 
-function character:init(env)
-    if _ENV.LOAF_KLEI_MOD_API == nil then
-        _ENV=env
-        _ENV.LOAF_KLEI_MOD_API=true
-    end
+function character:init(env_)
+    env = env_
 end
 
 -- 封装配置选项，使得更好配置，但要保留一次性配置的接口
 function character:new(...)
     local o = {...}
     table.insert(character.data,o)
-    setmetatable(o,{__index=self})
+    setmetatable(o,{__index=character})
     return o
 end
 
 function character:load_game()
-    for key, value in pairs(character.data) do
+    for key, value in ipairs(character.data) do
         -- todo:加载和初始化，在modmain调用
-        AddModCharacter(value.name,value.gender,value.modes)
-        AddPrefabPostInit(value.name, function(inst)
-            for key, value in pairs(value.tags) do
-                inst:AddTag(value)
-            end
-        end)
+        env.AddModCharacter(value.name,value.gender,value.modes)
+        -- AddPrefabPostInit(value.name, function(inst)
+        --     for key, value in pairs(value.tags) do
+        --         inst:AddTag(value)
+        --     end
+        -- end)
     end
 end
 

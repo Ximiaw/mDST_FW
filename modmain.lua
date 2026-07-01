@@ -1,8 +1,11 @@
 local character = require("character")
-character:init(_G)
+character:init(env)
+
+-- env.AddModCharacter("t","MALE",nil)
+
+-- print("AddModCharacter " .. _ENV.AddModCharacter == nil)
 
 local test = character:new()
     :set_info("test","MALE",nil)
-    :add_tag("test")
 
 character:load_game()
