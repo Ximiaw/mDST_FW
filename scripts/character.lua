@@ -107,11 +107,6 @@ function character:load_game()
     for key, value in ipairs(character.data) do
         -- todo:加载和初始化，在modmain调用
         env.AddModCharacter(value.name,value.gender,value.modes)
-        -- AddPrefabPostInit(value.name, function(inst)
-        --     for key, value in pairs(value.tags) do
-        --         inst:AddTag(value)
-        --     end
-        -- end)
     end
 end
 
@@ -119,16 +114,6 @@ function character:set_info(name,gender,modes)
     self.name = name
     self.gender = gender
     self.modes = modes
-    return self
-end
-
-function character:add_tag(tag)
-    self.tags[tag] = tag
-    return self
-end
-
-function character:rm_tag(tag)
-    self.tags[tag] = nil
     return self
 end
 

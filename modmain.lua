@@ -5,7 +5,8 @@ character:init(env)
 
 -- print("AddModCharacter " .. _ENV.AddModCharacter == nil)
 
-local test = character:new()
+character:new()
     :set_info("test","MALE",nil)
+    :add_tag("test")
 
 character:load_game()
