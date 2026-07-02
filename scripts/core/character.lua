@@ -5,7 +5,6 @@ local character = {
             name="mymodchar",                           -- 人物 prefab 名（小写）
             gender="FEMALE",                            -- 性别：FEMALE / MALE / ROBOT / NEUTRAL / PLURAL
             modes={ghost_skin = "ghost_mymodchar_build"}, -- 可选模式，如幽灵皮肤
-            tags={mymodbuilder = "mymodbuilder"},        -- 人物专属 builder_tag，用于限定配方
             stats={health=130, hunger=150, sanity=200}, -- 三维
             combat={damage=25, damage_mult=1.0},        -- 战斗属性
             locomotor={runspeed=6, walkspeed=4},        -- 移速
@@ -86,18 +85,22 @@ local character = {
 }
 ]]
 
-local env={}
+local ENV={}
 local character = {
     data={}
 }
 
-function character:init(env_)
-    env = env_
+function character:init(env)
+    ENV = env
+    return character
 end
 
 -- 封装配置选项，使得更好配置，但要保留一次性配置的接口
-function character:new(...)
-    local o = {...}
+function character:new(config)
+    local o = {}
+    if config ~= nil then
+        o = config
+    end
     table.insert(character.data,o)
     setmetatable(o,{__index=character})
     return o
@@ -106,7 +109,12 @@ end
 function character:load_game()
     for key, value in ipairs(character.data) do
         -- todo:加载和初始化，在modmain调用
-        env.AddModCharacter(value.name,value.gender,value.modes)
+        ENV.AddModCharacter(value.name,value.gender,value.modes)
+
+        local status = value.current_status
+        ENV.TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status[status].health)
+        ENV.TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
+        ENV.TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status[status].sanity)
     end
 end
 
@@ -115,6 +123,25 @@ function character:set_info(name,gender,modes)
     self.gender = gender
     self.modes = modes
     return self
+end
+
+function character:add_status(status,health,hunger,sanity)
+    self.status = self.status or {}
+    self.status[status]={
+        health=health,
+        hunger=hunger,
+        sanity=sanity
+    }
+    return self
+end
+
+function character:set_status(status)
+    self.current_status=status
+    return self
+end
+
+function character:get_status()
+    return self.current_status
 end
 
 return character
