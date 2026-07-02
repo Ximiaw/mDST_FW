@@ -5,7 +5,14 @@ local character = {
             name="mymodchar",                           -- 人物 prefab 名（小写）
             gender="FEMALE",                            -- 性别：FEMALE / MALE / ROBOT / NEUTRAL / PLURAL
             modes={ghost_skin = "ghost_mymodchar_build"}, -- 可选模式，如幽灵皮肤
-            stats={health=130, hunger=150, sanity=200}, -- 三维
+            current_status="default"
+            status={
+                default={
+                    health=130, 
+                    hunger=150, 
+                    sanity=200
+                } 
+            }, -- 三维
             combat={damage=25, damage_mult=1.0},        -- 战斗属性
             locomotor={runspeed=6, walkspeed=4},        -- 移速
             eater={strong_stomach=true, can_eat_raw=true, ignores_spoilage=false}, -- 饮食特性
@@ -90,12 +97,17 @@ local character = {
     data={}
 }
 
+---comment
+---@param env 环境变量，注入科雷的API
+---@return character
 function character:init(env)
     ENV = env
     return character
 end
 
--- 封装配置选项，使得更好配置，但要保留一次性配置的接口
+---comment
+---@param config 要添加入列表的配置表
+---@return o 新建的表或config
 function character:new(config)
     local o = {}
     if config ~= nil then
@@ -106,6 +118,8 @@ function character:new(config)
     return o
 end
 
+
+---comment 加载和初始化
 function character:load_game()
     for key, value in ipairs(character.data) do
         -- todo:加载和初始化，在modmain调用
@@ -118,6 +132,11 @@ function character:load_game()
     end
 end
 
+---comment
+---@param name 角色名字
+---@param gender 性别
+---@param modes any
+---@return table
 function character:set_info(name,gender,modes)
     self.name = name
     self.gender = gender
@@ -125,6 +144,12 @@ function character:set_info(name,gender,modes)
     return self
 end
 
+---comment
+---@param status 状态名，通过该名获取三维
+---@param health 生命
+---@param hunger 饥饿
+---@param sanity 理智
+---@return table
 function character:add_status(status,health,hunger,sanity)
     self.status = self.status or {}
     self.status[status]={
@@ -135,11 +160,16 @@ function character:add_status(status,health,hunger,sanity)
     return self
 end
 
+---comment
+---@param status 状态名，加载时加载对应状态的属性
+---@return table
 function character:set_status(status)
     self.current_status=status
     return self
 end
 
+---comment
+---@return current_status 当前状态，加载时加载该状态
 function character:get_status()
     return self.current_status
 end
