@@ -93,21 +93,17 @@ local character = {
 ]]
 
 local ENV={}
+local STRINGS={}
 local character = {
     data={}
 }
 
----comment
----@param env 环境变量，注入科雷的API
----@return character
 function character:init(env)
     ENV = env
+    STRINGS = env.GLOBAL.STRINGS
     return character
 end
 
----comment
----@param config 要添加入列表的配置表
----@return o 新建的表或config
 function character:new(config)
     local o = {}
     if config ~= nil then
@@ -118,13 +114,20 @@ function character:new(config)
     return o
 end
 
-
----comment 加载和初始化
 function character:load_game()
     for key, value in ipairs(character.data) do
-        -- todo:加载和初始化，在modmain调用
-        ENV.AddModCharacter(value.name,value.gender,value.modes)
+        STRINGS.NAMES[string.upper(value.name)] = value.monicker
 
+        if ENV.Assets == nil then
+            ENV.Assets = value.assets
+        else
+            for index, value in ipairs(value.assets) do
+                table.insert(value)
+            end
+        end
+
+        ENV.AddModCharacter(value.name,value.gender,value.modes)
+        
         local status = value.current_status
         ENV.TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status[status].health)
         ENV.TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
@@ -132,11 +135,6 @@ function character:load_game()
     end
 end
 
----comment
----@param name 角色名字
----@param gender 性别
----@param modes any
----@return table
 function character:set_info(name,gender,modes)
     self.name = name
     self.gender = gender
@@ -144,12 +142,6 @@ function character:set_info(name,gender,modes)
     return self
 end
 
----comment
----@param status 状态名，通过该名获取三维
----@param health 生命
----@param hunger 饥饿
----@param sanity 理智
----@return table
 function character:add_status(status,health,hunger,sanity)
     self.status = self.status or {}
     self.status[status]={
@@ -160,18 +152,23 @@ function character:add_status(status,health,hunger,sanity)
     return self
 end
 
----comment
----@param status 状态名，加载时加载对应状态的属性
----@return table
 function character:set_status(status)
     self.current_status=status
     return self
 end
 
----comment
----@return current_status 当前状态，加载时加载该状态
 function character:get_status()
     return self.current_status
+end
+
+function character:set_monicker(name)
+    self.monicker=name
+    return self
+end
+
+function character:add_assets(ass)
+    self.assets=ass
+    return self
 end
 
 return character
