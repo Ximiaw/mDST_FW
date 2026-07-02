@@ -122,7 +122,7 @@ function character:load_game()
             ENV.Assets = value.assets
         else
             for index, value in ipairs(value.assets) do
-                table.insert(value)
+                table.insert(ENV.Assets,value)
             end
         end
 
