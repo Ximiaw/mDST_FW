@@ -118,12 +118,9 @@ function character:load_game()
     for key, value in ipairs(character.data) do
         STRINGS.NAMES[string.upper(value.name)] = value.monicker
 
-        if ENV.Assets == nil then
-            ENV.Assets = value.assets
-        else
-            for index, value in ipairs(value.assets) do
-                table.insert(ENV.Assets,value)
-            end
+        ENV.Assets = ENV.Assets or {}
+        for index, value in ipairs(value.assets) do
+            table.insert(ENV.Assets,value)
         end
 
         ENV.AddModCharacter(value.name,value.gender,value.modes)

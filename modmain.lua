@@ -12,4 +12,3 @@ character:new()
     })
 
 character:load_game()
-
