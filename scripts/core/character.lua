@@ -91,30 +91,23 @@ local character = {
     }
 }
 ]]
-
-local ENV={}
-local STRINGS={}
 local character = {
     data={}
 }
 
-function character:init(env)
+local ENV = nil
+local STRINGS = nil
+local STACK = {}
+
+function character.init(env,stack)
     ENV = env
     STRINGS = env.GLOBAL.STRINGS
+    STACK = stack
+    table.insert(STACK,character)
     return character
 end
 
-function character:new(config)
-    local o = {}
-    if config ~= nil then
-        o = config
-    end
-    table.insert(character.data,o)
-    setmetatable(o,{__index=character})
-    return o
-end
-
-function character:load_game()
+function character.load_game()
     for key, value in ipairs(character.data) do
         STRINGS.NAMES[string.upper(value.name)] = value.monicker
 
@@ -130,6 +123,21 @@ function character:load_game()
         ENV.TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
         ENV.TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status[status].sanity)
     end
+end
+
+function character:finish()
+    table.remove(STACK)
+    return STACK[#STACK]
+end
+
+function character:new(config)
+    local o = {}
+    if config ~= nil then
+        o = config
+    end
+    table.insert(character.data,o)
+    setmetatable(o,{__index=character})
+    return o
 end
 
 function character:set_info(name,gender,modes)
