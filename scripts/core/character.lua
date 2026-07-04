@@ -97,14 +97,14 @@ local character = {
 
 local ENV = nil
 local STRINGS = nil
-local TUNING = {}
+local TUNING = nil
 local STACK = {}
 local ARGS = {}
 
 function character.init(env,stack,args)
     ENV = env
     STRINGS = env.GLOBAL.STRINGS
-    TUNING = env.GLOBAL.TUNING
+    TUNING = env.TUNING
     STACK = stack
     ARGS = args
     return character
@@ -125,9 +125,9 @@ function character.load_game()
         ENV.AddModCharacter(value.name,value.gender,value.modes)
         
         local status = value.current_status
-        TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status[status].health)
-        TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
-        TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status[status].sanity)
+        TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status.health)
+        TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status.hunger)
+        TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status.sanity)
     end
 end
 
@@ -169,6 +169,11 @@ end
 
 function character:set_monicker(name)
     self.monicker=name
+    return self
+end
+
+function character:set_tags(tags)
+    self.tags = tags
     return self
 end
 
@@ -239,8 +244,20 @@ function character:set_player_prefabs(prefabs)
     return self
 end
 
+function character:set_mini_map_icon(filename)
+    self.mini_map_icon = filename
+    return self
+end
+
 function character:set_player_common_postinit(fn)
     self.player_common_postinit = function (inst)
+        inst.MiniMapEntity:SetIcon(self.mini_map_icon)
+        inst:AddTag(self.name)
+        if self.tags ~= nil then
+            for index, value in ipairs(self) do
+                inst:AddTag(value)
+            end
+        end
         fn(inst,ARGS)
     end
     return self
