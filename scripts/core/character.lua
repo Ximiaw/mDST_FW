@@ -103,7 +103,6 @@ function character.init(env,stack)
     ENV = env
     STRINGS = env.GLOBAL.STRINGS
     STACK = stack
-    table.insert(STACK,character)
     return character
 end
 
@@ -123,6 +122,11 @@ function character.load_game()
         ENV.TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
         ENV.TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status[status].sanity)
     end
+end
+
+function character.start()
+    table.insert(STACK,character)
+    return character
 end
 
 function character:finish()
