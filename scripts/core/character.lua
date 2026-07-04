@@ -97,12 +97,16 @@ local character = {
 
 local ENV = nil
 local STRINGS = nil
+local TUNING = {}
 local STACK = {}
+local ARGS = {}
 
-function character.init(env,stack)
+function character.init(env,stack,args)
     ENV = env
     STRINGS = env.GLOBAL.STRINGS
+    TUNING = env.GLOBAL.TUNING
     STACK = stack
+    ARGS = args
     return character
 end
 
@@ -115,12 +119,15 @@ function character.load_game()
             table.insert(ENV.Assets,value)
         end
 
+        local MakePlayerCharacter = require("prefabs/player_common")
+        MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
+
         ENV.AddModCharacter(value.name,value.gender,value.modes)
         
         local status = value.current_status
-        ENV.TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status[status].health)
-        ENV.TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
-        ENV.TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status[status].sanity)
+        TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status[status].health)
+        TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status[status].hunger)
+        TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status[status].sanity)
     end
 end
 
@@ -151,9 +158,8 @@ function character:set_info(name,gender,modes)
     return self
 end
 
-function character:add_status(status,health,hunger,sanity)
-    self.status = self.status or {}
-    self.status[status]={
+function character:set_status(health,hunger,sanity)
+    self.status = {
         health=health,
         hunger=hunger,
         sanity=sanity
@@ -161,22 +167,124 @@ function character:add_status(status,health,hunger,sanity)
     return self
 end
 
-function character:set_status(status)
-    self.current_status=status
-    return self
-end
-
-function character:get_status()
-    return self.current_status
-end
-
 function character:set_monicker(name)
     self.monicker=name
     return self
 end
 
-function character:add_assets(ass)
+function character:set_assets(ass)
     self.assets=ass
+    return self
+end
+
+function character:set_combat_mul(mul)
+    self.combat = self.combat or {}
+    self.combat.mul = mul
+    return self
+end
+
+function character:set_combat_bonus(num)
+    self.combat = self.combat or {}
+    self.combat.bonus  = num
+    return self
+end
+
+function character:set_combat_hand(num)
+    self.combat = self.combat or {}
+    self.combat.hand = num
+    return self
+end
+
+function character:set_combat_frequency(num)
+    self.combat = self.combat or {}
+    self.combat.frequency = num
+    return self
+end
+
+function character:set_combat_range(attack,hit)
+    self.combat = self.combat or {}
+    self.combat.range = self.combat.range or {}
+    self.combat.range.attack = attack
+    self.combat.range.hit = hit or attack
+    return self
+end
+
+function character:set_aoe_enable(o)
+    self.combat = self.combat or {}
+    self.combat.aoe = self.combat.aoe or {}
+    self.combat.aoe.on = o
+    return self
+end
+
+function character:set_combat_aoe(range, percent, areahitcheck)
+    self.combat = self.combat or {}
+    self.combat.aoe = self.combat.aoe or {}
+    self.combat.aoe = {
+        range = range,
+        percent = percent,
+        areahitcheck = function (inst,target)
+            areahitcheck(inst,target,ARGS)
+        end
+    }
+    return self
+end
+
+function character:set_player_assets(ass)
+    self.player_assets = ass
+    return self
+end
+
+function character:set_player_prefabs(prefabs)
+    self.player_prefabs = prefabs
+    return self
+end
+
+function character:set_player_common_postinit(fn)
+    self.player_common_postinit = function (inst)
+        fn(inst,ARGS)
+    end
+    return self
+end
+
+function character:set_player_master_postinit(fn)
+    self.player_master_postinit = function (inst)
+        inst.components.health:SetMaxHealth(self.health or TUNING.WILSON_HEALTH)
+        inst.components.hunger:SetMax(self.hunger or TUNING.WILSON_HUNGER)
+        inst.components.sanity:SetMax(self.sanity or TUNING.WILSON_SANITY)
+        if self.combat ~= nil then
+            inst.components.combat:SetDefaultDamage(self.combat.hand or 1)
+            inst.components.combat.damagemultiplier = self.combat.mul or 1
+            inst.components.combat.damagembonus = self.combat.bonus or 0
+
+            if self.combat.range ~= nil then
+                inst.components.combat.SetRange(self.combat.range.attack or 2,self.combat.range.hit or 2)
+            end
+            if self.combat.aoe ~= nil then
+                inst.components.combat:EnableAreaDamage(self.combat.aoe.on or false)
+                inst.components.combat:SetAreaDamage(self.combat.aoe.range, self.combat.aoe.percent, self.combat.aoe.areahitcheck)
+            end
+        end
+        local load = function (inst)
+            local function onbecamehuman(inst)
+                inst.components.locomotor:SetExternalSpeedMultiplier(inst, "ghost", 1)
+            end
+            local function onbecameghost(inst)
+                inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "ghost")
+            end
+
+            inst:ListenForEvent("ms_respawnedfromghost", onbecamehuman)
+            inst:ListenForEvent("ms_becameghost", onbecameghost)
+
+            if inst:HasTag("playerghost") then
+                onbecameghost(inst)
+            else
+                onbecamehuman(inst)
+            end
+        end
+        inst.OnLoad = load
+        inst.OnNewSpawn = load
+        fn(inst,ARGS)
+    end
     return self
 end
 

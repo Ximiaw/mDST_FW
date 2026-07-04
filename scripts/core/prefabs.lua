@@ -4,10 +4,12 @@ local prefabs = {
 
 local ENV = nil
 local STACK = {}
+local ARGS = {}
 
-function prefabs.init(env,stack)
+function prefabs.init(env,stack,args)
     ENV = env
     STACK = stack
+    ARGS = args
     return prefabs
 end
 

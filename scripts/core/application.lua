@@ -12,8 +12,8 @@ local ENV = nil
 function app:init(env)
     ENV = env
     table.insert(STACK,app)
-    self.__character.init(env,STACK)
-    self.__prefabs.init(env,STACK)
+    self.__character.init(env,STACK,app.args)
+    self.__prefabs.init(env,STACK,app.args)
     return self
 end
 
