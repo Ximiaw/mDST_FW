@@ -13,6 +13,7 @@ app
             :set_info("gilgamesh","MALE",nil)
             :set_status(500,500,500)
             :set_monicker("吉尔伽美什")
+            :set_ghost_speed_mul(2)
             :set_assets({
                 Asset( "IMAGE", "bigportraits/gilgamesh.tex" ),
                 Asset( "ATLAS", "bigportraits/gilgamesh.xml" ),

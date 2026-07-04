@@ -144,16 +144,14 @@ function character:set_aoe_enable(o)
     return self
 end
 
-function character:set_combat_aoe(range, percent, areahitcheck)
+function character:set_combat_aoe(range, percent, area_hit_check)
     self.combat = self.combat or {}
     self.combat.aoe = self.combat.aoe or {}
-    self.combat.aoe = {
-        range = range,
-        percent = percent,
-        areahitcheck = function (inst,target)
-            areahitcheck(inst,target,ARGS)
-        end
-    }
+    self.combat.aoe.range = range
+    self.combat.aoe.percent = percent
+    self.combat.aoe.areahitcheck = function (inst,target)
+        area_hit_check(inst,target,self,ARGS)
+    end
     return self
 end
 
@@ -169,6 +167,11 @@ end
 
 function character:set_mini_map_icon(filename)
     self.mini_map_icon = filename
+    return self
+end
+
+function character:set_ghost_speed_mul(speed_mul)
+    self.ghost_speed_mul = speed_mul
     return self
 end
 
@@ -208,7 +211,7 @@ function character:set_player_master_postinit(fn)
         end
         local load = function (inst)
             local function onbecamehuman(inst)
-                inst.components.locomotor:SetExternalSpeedMultiplier(inst, "ghost", 1)
+                inst.components.locomotor:SetExternalSpeedMultiplier(inst, "ghost", self.ghost_speed_mul or 1)
             end
             local function onbecameghost(inst)
                 inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "ghost")
