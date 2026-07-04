@@ -1,96 +1,3 @@
---[[
-local character = {
-    data={
-        [1]={
-            name="mymodchar",                           -- 人物 prefab 名（小写）
-            gender="FEMALE",                            -- 性别：FEMALE / MALE / ROBOT / NEUTRAL / PLURAL
-            modes={ghost_skin = "ghost_mymodchar_build"}, -- 可选模式，如幽灵皮肤
-            current_status="default"
-            status={
-                default={
-                    health=130, 
-                    hunger=150, 
-                    sanity=200
-                } 
-            }, -- 三维
-            combat={damage=25, damage_mult=1.0},        -- 战斗属性
-            locomotor={runspeed=6, walkspeed=4},        -- 移速
-            eater={strong_stomach=true, can_eat_raw=true, ignores_spoilage=false}, -- 饮食特性
-            assets={                                    -- 资源
-                Asset("ANIM", "anim/mymodchar.zip"),
-                Asset("ANIM", "anim/ghost_mymodchar_build.zip"),
-            },
-            prefabs={"mymoditem"},                      -- 额外预构体依赖
-            starting_inventory={"mymoditem", "twigs", "twigs"}, -- 初始物品
-            character_recipe={                          -- 人物专属配方
-                private={                               -- 仅该人物可见/可造
-                    {
-                        product = "mymoditem",
-                        ingredients = {
-                            Ingredient("twigs", 2),
-                            Ingredient("rocks", 2),
-                        },
-                        tech = TECH.NONE,
-                        config = {
-                            builder_tag = "mymodbuilder",
-                            atlas = "images/mymoditem.xml",
-                            image = "mymoditem.tex",
-                        },
-                    },
-                },
-                public={}                               -- 对他人也可见的配方（可选）
-            },
-            recipe_tab={                                -- 人物专属制作栏标签（已弃用，建议用 recipe_filter）
-                name = "MYMODTAB",
-                sort = 999,
-                atlas = "images/hud.xml",
-                icon = "tab_mymod.tex",
-                owner_tag = "mymodbuilder",
-            },
-            recipe_filter={                             -- 制作分类过滤器
-                name = "MYMOD",
-                atlas = "images/hud2.xml",
-                image = "filter_mymod.tex",
-            },
-            tech={MYMODTECH = 1},                       -- 人物专属科技等级
-            prototyper={                                -- 自定义科技站配置
-                name = "mymod_prototyper",
-                data = {
-                    icon_atlas = "images/hud.xml",
-                    icon_image = "tab_mymod.tex",
-                    is_crafting_station = true,
-                    action_str = "MYMODPROTOTYPER",
-                    filter_text = "MYMODTECH",
-                },
-            },
-            strings={                                   -- 角色 UI 文本
-                title = "MOD 探险家",
-                name = "艾拉",
-                description = "* 擅长 crafting\n* 自带专属工具\n* 害怕黑暗",
-            },
-            speech = "speech_mymodchar",                -- 台词文件路径
-            minimap_icons = {                           -- 小地图图集
-                "images/map_icons/mymodchar.xml",
-            },
-            skilltree = "prefabs/skilltree_mymodchar",  -- 技能树文件路径
-            common_postinit = function(inst)            -- 客户端/服务端都会执行的初始化
-                inst:AddTag("mymodbuilder")
-                inst.AnimState:AddOverrideBuild("mymodchar")
-            end,
-            master_postinit = function(inst)            -- 仅服务端执行的初始化
-                inst.starting_inventory = inst.config.starting_inventory
-                inst.components.health:SetMaxHealth(inst.config.stats.health)
-                inst.components.hunger:SetMax(inst.config.stats.hunger)
-                inst.components.sanity:SetMax(inst.config.stats.sanity)
-                inst.components.combat:SetDefaultDamage(inst.config.combat.damage)
-            end,
-            events={                                    -- 角色事件监听
-                {event = "death", fn = function(inst, data) print(inst.name .. " died") end},
-            },
-        }
-    }
-}
-]]
 local character = {
     data={}
 }
@@ -115,7 +22,7 @@ function character.load_game()
         STRINGS.NAMES[string.upper(value.name)] = value.monicker
 
         ENV.Assets = ENV.Assets or {}
-        for index, value in ipairs(value.assets) do
+        for index, value in pairs(value.assets) do
             table.insert(ENV.Assets,value)
         end
 
@@ -128,6 +35,17 @@ function character.load_game()
         TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status.health)
         TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status.hunger)
         TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status.sanity)
+
+        if value.start_items ~= nil then
+            local start_items = {}
+            for key, value in pairs(value.start_items) do
+                table.insert(start_items,key)
+                TUNING.STARTING_ITEM_IMAGE_OVERRIDE[key] = value
+            end
+            TUNING.GAMEMODE_STARTING_ITEMS = TUNING.GAMEMODE_STARTING_ITEMS or {}
+            TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT = TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT or {}
+            TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT[string.upper(value.name)] = start_items
+        end
     end
 end
 
@@ -169,6 +87,11 @@ end
 
 function character:set_monicker(name)
     self.monicker=name
+    return self
+end
+
+function character:set_start_items(items)
+    self.start_items = items
     return self
 end
 
@@ -254,11 +177,13 @@ function character:set_player_common_postinit(fn)
         inst.MiniMapEntity:SetIcon(self.mini_map_icon)
         inst:AddTag(self.name)
         if self.tags ~= nil then
-            for index, value in ipairs(self) do
+            for index, value in pairs(self.tags) do
                 inst:AddTag(value)
             end
         end
-        fn(inst,ARGS)
+        if fn ~= nil then
+            fn(inst,self,ARGS)
+        end
     end
     return self
 end
@@ -274,7 +199,7 @@ function character:set_player_master_postinit(fn)
             inst.components.combat.damagembonus = self.combat.bonus or 0
 
             if self.combat.range ~= nil then
-                inst.components.combat.SetRange(self.combat.range.attack or 2,self.combat.range.hit or 2)
+                inst.components.combat:SetRange(self.combat.range.attack or 2,self.combat.range.hit or 2)
             end
             if self.combat.aoe ~= nil then
                 inst.components.combat:EnableAreaDamage(self.combat.aoe.on or false)
@@ -300,7 +225,9 @@ function character:set_player_master_postinit(fn)
         end
         inst.OnLoad = load
         inst.OnNewSpawn = load
-        fn(inst,ARGS)
+        if fn ~= nil then
+            fn(inst,self,ARGS)
+        end
     end
     return self
 end
