@@ -1,5 +1,5 @@
-images
-bigportraits
-sound
-exported
-anim
+*
+!.gitignore
+!scripts/
+!scripts/core
+!scripts/core/**
