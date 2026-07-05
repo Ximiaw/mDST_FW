@@ -1,8 +1,9 @@
 local character = {
-    data={}
+    data = {}
 }
 
 local ENV = nil
+local GLOBAL = nil
 local STRINGS = nil
 local TUNING = nil
 local STACK = {}
@@ -10,6 +11,7 @@ local ARGS = {}
 
 function character.init(env,stack,args)
     ENV = env
+    GLOBAL = env.GLOBAL
     STRINGS = env.GLOBAL.STRINGS
     TUNING = env.TUNING
     STACK = stack
@@ -25,6 +27,15 @@ function character.load_game()
         for index, value in pairs(value.assets) do
             table.insert(ENV.Assets,value)
         end
+
+        CreatePrefabSkin(value.name.."_none",{
+            base_perfab = value.skin.base_perfab,
+            skins = value.skin.skins, 
+            assets = value.skin.assets,
+            tags = value.skin.tags or {string.upper(value.name),"CHARACTER"},
+            skip_item_gen = value.skin.skip_item_gen or true,
+            skip_giftable_gen = value.skin.skip_giftable_gen or true
+        })
 
         local MakePlayerCharacter = require("prefabs/player_common")
         MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
@@ -60,10 +71,7 @@ function character:finish()
 end
 
 function character:new(config)
-    local o = {}
-    if config ~= nil then
-        o = config
-    end
+    local o = config or {}
     table.insert(character.data,o)
     setmetatable(o,{__index=character})
     return o
@@ -232,6 +240,65 @@ function character:set_player_master_postinit(fn)
             fn(inst,self,ARGS)
         end
     end
+    return self
+end
+
+function character:set_skin_assets(assets)
+    self.skin = self.skin or {}
+    self.skin.assets = assets
+    return self
+end
+
+function character:set_skin_tags(tags)
+    self.skin = self.skin or {}
+    self.skin.tags = tags
+    table.insert(self.skin.tags,string.upper(self.name))
+    table.insert(self.skin.tags,"CHARACTER")
+    return tags
+end
+
+function character:set_skin_base_prefab(prefab)
+    self.skin = self.skin or {}
+    self.skin.base_perfab = prefab
+    return self
+end
+
+function character:set_skin_normal(normal)
+    self.skin = self.skin or {}
+    self.skin.skins = self.skin.skins or {}
+    self.skin.skins.normal_skin = normal
+    return self
+end
+
+function character:set_skin_ghost(ghost)
+    self.skin = self.skin or {}
+    self.skin.skins = self.skin.skins or {}
+    self.skin.skins.ghost_skin = ghost
+    return self
+end
+
+function character:set_skin(skin,append)
+    self.skin = self.skin or {}
+    self.skin.skins = self.skin.skins or {}
+    if append then
+        for key, value in pairs(skin) do
+            self.skin.skins[key] = value
+        end
+    else
+        self.skin.skins = skin
+    end
+    return self
+end
+
+function character:set_skip_item_gen(on)
+    self.skin = self.skin or {}
+    self.skin.skip_item_gen = on
+    return self
+end
+
+function character:set_skip_giftable_gen(on)
+    self.skin = self.skin or {}
+    self.skin.skip_giftable_gen = on
     return self
 end
 
