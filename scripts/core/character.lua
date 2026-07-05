@@ -31,6 +31,10 @@ function character.load_game()
             table.insert(ENV.Assets,value)
         end
 
+        local MakePlayerCharacter = require("prefabs/player_common")
+        local character_prefab = MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
+        RegisterPrefabs(character_prefab)
+
         local skin_prefab = CreatePrefabSkin(value.name.."_none",{
             base_prefab = value.skin.base_prefab,
             skins = value.skin.skins, 
@@ -40,10 +44,6 @@ function character.load_game()
             skip_giftable_gen = value.skin.skip_giftable_gen or true
         })
         RegisterPrefabs(skin_prefab)
-
-        local MakePlayerCharacter = require("prefabs/player_common")
-        local character_prefab = MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
-        RegisterPrefabs(character_prefab)
 
         ENV.AddMinimapAtlas(value.mini_map_icon)
 
@@ -224,17 +224,17 @@ function character:set_player_master_postinit(fn)
                 inst.components.combat:SetAreaDamage(self.combat.aoe.range, self.combat.aoe.percent, self.combat.aoe.areahitcheck)
             end
         end
-        if inst.components.inventory ~= nil and self.start_items ~=nil then
+        if inst.components.inventory ~= nil and self.start_items ~= nil then
             for key, value in pairs(self.start_items) do
                 inst.components.inventory:GiveItem(GLOBAL.SpawnPrefab(key))
             end
         end
         local load = function (inst)
             local function onbecamehuman(inst)
-                inst.components.locomotor:SetExternalSpeedMultiplier(inst, "ghost", self.ghost_speed_mul or 1)
+                inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "ghost")
             end
             local function onbecameghost(inst)
-                inst.components.locomotor:RemoveExternalSpeedMultiplier(inst, "ghost")
+                inst.components.locomotor:SetExternalSpeedMultiplier(inst, "ghost", self.ghost_speed_mul or 1)
             end
 
             inst:ListenForEvent("ms_respawnedfromghost", onbecamehuman)
