@@ -212,6 +212,7 @@ function character:set_player_master_postinit(fn)
         inst.components.sanity:SetMax(self.status.sanity or TUNING.WILSON_SANITY)
         if self.combat ~= nil then
             inst.components.combat:SetDefaultDamage(self.combat.hand or 1)
+            inst.components.combat:SetAttackPeriod(self.combat.frequency or 0.5)
             inst.components.combat.damagemultiplier = self.combat.mul or 1
             inst.components.combat.damagembonus = self.combat.bonus or 0
 
