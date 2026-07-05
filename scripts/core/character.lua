@@ -208,9 +208,9 @@ end
 
 function character:set_player_master_postinit(fn)
     self.player_master_postinit = function (inst)
-        inst.components.health:SetMaxHealth(self.health or TUNING.WILSON_HEALTH)
-        inst.components.hunger:SetMax(self.hunger or TUNING.WILSON_HUNGER)
-        inst.components.sanity:SetMax(self.sanity or TUNING.WILSON_SANITY)
+        inst.components.health:SetMaxHealth(self.status.health or TUNING.WILSON_HEALTH)
+        inst.components.hunger:SetMax(self.status.hunger or TUNING.WILSON_HUNGER)
+        inst.components.sanity:SetMax(self.status.sanity or TUNING.WILSON_SANITY)
         if self.combat ~= nil then
             inst.components.combat:SetDefaultDamage(self.combat.hand or 1)
             inst.components.combat.damagemultiplier = self.combat.mul or 1
