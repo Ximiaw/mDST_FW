@@ -49,7 +49,6 @@ function character.load_game()
 
         ENV.AddModCharacter(value.name,value.gender,value.modes)
         
-        local status = value.current_status
         TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status.health)
         TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status.hunger)
         TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status.sanity)
@@ -266,7 +265,7 @@ function character:set_skin_tags(tags)
     self.skin.tags = tags
     table.insert(self.skin.tags,string.upper(self.name))
     table.insert(self.skin.tags,"CHARACTER")
-    return tags
+    return self
 end
 
 function character:set_skin_base_prefab(prefab)

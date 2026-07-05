@@ -21,11 +21,8 @@ app
                 Asset( "ATLAS", "images/avatars/avatar_ghost_gilgamesh.xml" ),
                 Asset( "IMAGE", "images/avatars/self_inspect_gilgamesh.tex" ),
                 Asset( "ATLAS", "images/avatars/self_inspect_gilgamesh.xml" ),
-                Asset( "IMAGE", "images/inventoryimages/key_of_babylon.tex" ),
-                Asset( "ATLAS", "images/inventoryimages/key_of_babylon.xml" )
-            })
-            :set_start_items({
-                spear = {} -- 原版物品使用空表
+                Asset( "IMAGE", "images/saveslot_portraits/gilgamesh.tex" ),
+                Asset( "ATLAS", "images/saveslot_portraits/gilgamesh.xml" )
             })
             :set_mini_map_icon("images/map_icons/gilgamesh.xml")
             :set_player_common_postinit()
