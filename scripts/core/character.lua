@@ -38,7 +38,8 @@ function character.load_game()
         })
 
         local MakePlayerCharacter = require("prefabs/player_common")
-        MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
+        local character_prefab = MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
+        RegisterPrefabs(character_prefab)
 
         ENV.AddModCharacter(value.name,value.gender,value.modes)
         
@@ -215,6 +216,11 @@ function character:set_player_master_postinit(fn)
             if self.combat.aoe ~= nil then
                 inst.components.combat:EnableAreaDamage(self.combat.aoe.on or false)
                 inst.components.combat:SetAreaDamage(self.combat.aoe.range, self.combat.aoe.percent, self.combat.aoe.areahitcheck)
+            end
+        end
+        if inst.components.inventory ~= nil and self.start_items ~=nil then
+            for key, value in pairs(self.start_items) do
+                inst.components.inventory:GiveItem(GLOBAL.SpawnPrefab(key))
             end
         end
         local load = function (inst)

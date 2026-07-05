@@ -3,12 +3,14 @@ local prefabs = {
 }
 
 local ENV = nil
+local GLOBAL = nil
 local STRINGS = nil
 local STACK = {}
 local ARGS = {}
 
 function prefabs.init(env,stack,args)
     ENV = env
+    GLOBAL = env.GLOBAL
     STRINGS = env.GLOBAL.STRINGS
     STACK = stack
     ARGS = args
@@ -65,7 +67,7 @@ end
 
 function prefabs:set_fn(fn)
     self.fn = function ()
-        local inst = ENV.CreateEntity()
+        local inst = GLOBAL.CreateEntity()
         inst.entity:AddTransform()
         inst.entity:AddAnimState()
         inst.entity:AddNetwork()

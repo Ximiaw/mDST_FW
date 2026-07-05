@@ -19,7 +19,7 @@ app
             :set_fn(function (inst,prefab_table,args)
                 inst.entity:AddDynamicShadow()
      
-                MakeInventoryPhysics(inst)   
+                GLOBAL.MakeInventoryPhysics(inst)   
 
                 inst.DynamicShadow:SetSize(1, 1)
                 
@@ -30,7 +30,7 @@ app
                 inst:AddTag("key_of_babylon")
                 inst:AddTag("sharp")
 
-                if not TheWorld.ismastersim then
+                if not GLOBAL.TheWorld.ismastersim then
                     return inst
                 end
 
@@ -51,7 +51,7 @@ app
                 inst.components.weapon:SetRange(15,15)
                 inst.components.weapon:SetOnAttack(key_attack)
 
-                MakeHauntableLaunch(inst)
+                GLOBAL.MakeHauntableLaunch(inst)
             end)
     :finish()
     :character()
@@ -104,7 +104,9 @@ app
                 inst.MiniMapEntity:SetIcon( "gilgamesh.tex" )
                 inst:AddTag("gilgameshbuilder")
                 inst:AddTag("gilgamesh")
-                inst:AddComponent("keyhandler")
+                if not inst.components.keyhandler then
+                    inst:AddComponent("keyhandler")
+                end
                 inst.components.keyhandler:AddActionListener("gilgamesh",KEY_C,"gate_of_babylon_attack")
                 AddModRPCHandler("gilgamesh","gate_of_babylon_attack",character_table.__gate_of_babylon_attack_fn__)
 
@@ -113,7 +115,9 @@ app
                 inst.MiniMapEntity:SetIcon( "gilgamesh.tex" )
                 inst:AddTag("gilgameshbuilder")
                 inst:AddTag("gilgamesh")
-                inst:AddComponent("keyhandler")
+                if not inst.components.keyhandler then
+                    inst:AddComponent("keyhandler")
+                end
                 inst.components.keyhandler:AddActionListener("gilgamesh",KEY_C,"gate_of_babylon_attack")
                 AddModRPCHandler("gilgamesh","gate_of_babylon_attack",character_table.__gate_of_babylon_attack_fn__)
 
