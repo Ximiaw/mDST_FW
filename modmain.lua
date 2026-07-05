@@ -80,10 +80,14 @@ app
                 Asset( "ATLAS", "bigportraits/gilgamesh_none.xml" ),
                 Asset( "IMAGE", "images/names_gilgamesh.tex" ),
                 Asset( "ATLAS", "images/names_gilgamesh.xml" ),
+                Asset( "IMAGE", "images/avatars/avatar_gilgamesh.tex" ),
+                Asset( "ATLAS", "images/avatars/avatar_gilgamesh.xml" ),
+                Asset( "IMAGE", "images/avatars/avatar_ghost_gilgamesh.tex" ),
+                Asset( "ATLAS", "images/avatars/avatar_ghost_gilgamesh.xml" ),
+                Asset( "IMAGE", "images/avatars/self_inspect_gilgamesh.tex" ),
+                Asset( "ATLAS", "images/avatars/self_inspect_gilgamesh.xml" ),
                 Asset( "IMAGE", "images/inventoryimages/key_of_babylon.tex" ),
-                Asset( "ATLAS", "images/inventoryimages/key_of_babylon.xml" ),
-                Asset( "IMAGE", "images/inventoryimages/gilgamesh_notice.tex" ),
-                Asset( "ATLAS", "images/inventoryimages/gilgamesh_notice.xml" )
+                Asset( "ATLAS", "images/inventoryimages/key_of_babylon.xml" )
             })
             :set_start_items({
                 key_of_babylon = {
@@ -98,7 +102,7 @@ app
             :set_player_assets({
                 Asset("SCRIPT", "scripts/prefabs/player_common.lua")
             })
-            :set_mini_map_icon("gilgamesh.tex")
+            :set_mini_map_icon("images/map_icons/gilgamesh.xml")
             -- 下面两个args是app:args传入的
             :set_player_common_postinit(function (inst,character_table,args)
                 inst.MiniMapEntity:SetIcon( "gilgamesh.tex" )
@@ -124,7 +128,7 @@ app
             end)
             :set_skin_assets({
                 Asset( "ANIM", "anim/gilgamesh.zip" ),
-                Asset( "ANIM", "anim/ghost_archer_build.zip" ),
+                Asset( "ANIM", "anim/ghost_archer_build.zip" )
             })
             :set_skin_base_prefab("gilgamesh")
             :set_skin_normal("gilgamesh")

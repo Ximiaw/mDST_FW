@@ -5,6 +5,6 @@ version = "0.1"
 forumthread = ""
 dst_compatible = true
 client_only_mod = false
-all_clients_require_mod = false
+all_clients_require_mod = true
 api_version = 10
 configuration_options = {}

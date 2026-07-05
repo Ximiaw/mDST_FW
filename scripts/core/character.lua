@@ -24,22 +24,28 @@ function character.load_game()
         STRINGS.NAMES[string.upper(value.name)] = value.monicker
 
         ENV.Assets = ENV.Assets or {}
-        for index, value in pairs(value.assets) do
+        for key, value in pairs(value.assets) do
+            table.insert(ENV.Assets,value)
+        end
+        for key, value in pairs(value.skin.assets) do
             table.insert(ENV.Assets,value)
         end
 
-        CreatePrefabSkin(value.name.."_none",{
-            base_perfab = value.skin.base_perfab,
+        local skin_prefab = CreatePrefabSkin(value.name.."_none",{
+            base_prefab = value.skin.base_prefab,
             skins = value.skin.skins, 
             assets = value.skin.assets,
             tags = value.skin.tags or {string.upper(value.name),"CHARACTER"},
             skip_item_gen = value.skin.skip_item_gen or true,
             skip_giftable_gen = value.skin.skip_giftable_gen or true
         })
+        RegisterPrefabs(skin_prefab)
 
         local MakePlayerCharacter = require("prefabs/player_common")
         local character_prefab = MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
         RegisterPrefabs(character_prefab)
+
+        ENV.AddMinimapAtlas(value.mini_map_icon)
 
         ENV.AddModCharacter(value.name,value.gender,value.modes)
         
@@ -265,7 +271,7 @@ end
 
 function character:set_skin_base_prefab(prefab)
     self.skin = self.skin or {}
-    self.skin.base_perfab = prefab
+    self.skin.base_prefab = prefab
     return self
 end
 
