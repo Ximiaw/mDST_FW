@@ -36,7 +36,7 @@ function character.load_game()
         RegisterPrefabs(character_prefab)
 
         local skin_prefab = CreatePrefabSkin(value.name.."_none",{
-            base_prefab = value.skin.base_prefab,
+            base_prefab = value.skin.base_prefab or value.name,
             skins = value.skin.skins, 
             assets = value.skin.assets,
             tags = value.skin.tags or {string.upper(value.name),"CHARACTER"},
@@ -49,9 +49,10 @@ function character.load_game()
 
         ENV.AddModCharacter(value.name,value.gender,value.modes)
         
-        TUNING[string.upper(value.name).."_HEALTH"]=tonumber(value.status.health)
-        TUNING[string.upper(value.name).."_HUNGER"]=tonumber(value.status.hunger)
-        TUNING[string.upper(value.name).."_SANITY"]=tonumber(value.status.sanity)
+        value.status = value.status or {}
+        TUNING[string.upper(value.name).."_HEALTH"]=value.status.health or TUNING.WILSON_HEALTH
+        TUNING[string.upper(value.name).."_HUNGER"]=value.status.hunger or TUNING.WILSON_HUNGER
+        TUNING[string.upper(value.name).."_SANITY"]=value.status.sanity or TUNING.WILSON_SANITY
 
         if value.start_items ~= nil then
             local start_items = {}
