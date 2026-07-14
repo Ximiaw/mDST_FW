@@ -65,12 +65,75 @@ function prefabs:set_info(name,describe)
     return self
 end
 
+function prefabs:set_transform(on)
+    self.transform = on
+    return self
+end
+
+function prefabs:set_anim_state(on)
+    self.anim_state = on
+    return self
+end
+
+function prefabs:set_network(on)
+    self.network = on
+    return self
+end
+
+function prefabs:set_banks(assetname)
+    self.banks = assetname
+    return self
+end
+
+function prefabs:set_build(assetname)
+    self.build = assetname
+    return self
+end
+
+function prefabs:set_inventory_item_atlas_name(name)
+    self.inventory_item_atlas_name = name
+    return self
+end
+
+function prefabs:set_component(component)
+    if self.component ~= nil then
+        for key, value in pairs(component) do
+            table.insert(self.component,value)
+        end
+    else
+        self.component = component
+    end
+    return self
+end
+
+
 function prefabs:set_fn(fn)
     self.fn = function ()
         local inst = GLOBAL.CreateEntity()
-        inst.entity:AddTransform()
-        inst.entity:AddAnimState()
-        inst.entity:AddNetwork()
+        if self.transform ~= false then
+            inst.entity:AddTransform()        
+        end
+        if self.anim_state ~= false then
+            inst.entity:AddAnimState()
+        end
+        if self.component ~= nil then
+            for key, value in pairs(self.component) do
+                inst.AddComponent(value)
+            end
+        end
+        if self.network ~= false then
+            inst.entity:AddNetwork()
+        end
+        if self.banks ~= nil then
+            inst.AnimState:SetBanks(self.banks)
+        end
+        if self.build ~= nil then
+            inst.AnimState:SetBuild(self.build)
+        end
+        if self.inventory_item_atlas_name ~= nil then
+            inst.components.inventoryitem.atlasname = self.inventory_item_atlas_name
+        end
+
         if fn ~= nil then
             fn(inst,self,ARGS)
         end

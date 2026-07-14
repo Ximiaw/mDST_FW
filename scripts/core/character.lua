@@ -32,7 +32,13 @@ function character.load_game()
         end
 
         local MakePlayerCharacter = require("prefabs/player_common")
-        local character_prefab = MakePlayerCharacter(value.name,value.player_prefabs,value.player_assets,value.player_common_postinit,value.player_master_postinit)
+        local character_prefab = MakePlayerCharacter(
+            value.name,
+            value.player_prefabs,
+            value.player_assets,
+            value.player_common_postinit,
+            value.player_master_postinit
+        )
         RegisterPrefabs(character_prefab)
 
         local skin_prefab = CreatePrefabSkin(value.name.."_none",{
@@ -56,9 +62,9 @@ function character.load_game()
 
         if value.start_items ~= nil then
             local start_items = {}
-            for key, value in pairs(value.start_items) do
-                table.insert(start_items,key)
-                TUNING.STARTING_ITEM_IMAGE_OVERRIDE[key] = value
+            for item_name, item in pairs(value.start_items) do
+                table.insert(start_items,item_name)
+                TUNING.STARTING_ITEM_IMAGE_OVERRIDE[item_name] = item
             end
             TUNING.GAMEMODE_STARTING_ITEMS = TUNING.GAMEMODE_STARTING_ITEMS or {}
             TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT = TUNING.GAMEMODE_STARTING_ITEMS.DEFAULT or {}
@@ -222,7 +228,11 @@ function character:set_player_master_postinit(fn)
             end
             if self.combat.aoe ~= nil then
                 inst.components.combat:EnableAreaDamage(self.combat.aoe.on or false)
-                inst.components.combat:SetAreaDamage(self.combat.aoe.range, self.combat.aoe.percent, self.combat.aoe.areahitcheck)
+                inst.components.combat:SetAreaDamage(
+                    self.combat.aoe.range, 
+                    self.combat.aoe.percent, 
+                    self.combat.aoe.areahitcheck
+                )
             end
         end
         if inst.components.inventory ~= nil and self.start_items ~= nil then
